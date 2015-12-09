@@ -32,6 +32,7 @@ static UIImage *SVProgressHUDSuccessImage;
 static UIImage *SVProgressHUDErrorImage;
 static SVProgressHUDMaskType SVProgressHUDDefaultMaskType;
 static UIView *SVProgressHUDExtensionView;
+static BOOL SVProgressHUDIgnoresKeyboard;
 
 static const CGFloat SVProgressHUDRingRadius = 18;
 static const CGFloat SVProgressHUDRingNoTextRadius = 24;
@@ -57,7 +58,7 @@ static const CGFloat SVProgressHUDUndefinedProgress = -1;
 
 @property (nonatomic, readonly) CGFloat visibleKeyboardHeight;
 @property (nonatomic, assign) UIOffset offsetFromCenter;
-
+@property (nonatomic, assign) BOOL ignoresKeyboard;
 
 - (void)showProgress:(float)progress status:(NSString*)string maskType:(SVProgressHUDMaskType)hudMaskType;
 - (void)showImage:(UIImage*)image status:(NSString*)status duration:(NSTimeInterval)duration maskType:(SVProgressHUDMaskType)hudMaskType;
@@ -135,6 +136,9 @@ static const CGFloat SVProgressHUDUndefinedProgress = -1;
     SVProgressHUDExtensionView = view;
 }
 
++ (void)setIgnoresKeyboard:(BOOL)ignoresKeyboard {
+    SVProgressHUDIgnoresKeyboard = ignoresKeyboard;
+}
 
 #pragma mark - Show Methods
 
@@ -957,6 +961,10 @@ static const CGFloat SVProgressHUDUndefinedProgress = -1;
 
 - (CGFloat)visibleKeyboardHeight {
 #if !defined(SV_APP_EXTENSIONS)
+    if (SVProgressHUDIgnoresKeyboard) {
+        return 0;
+    }
+
     UIWindow *keyboardWindow = nil;
     for (UIWindow *testWindow in [[UIApplication sharedApplication] windows]) {
         if(![[testWindow class] isEqual:[UIWindow class]]) {
